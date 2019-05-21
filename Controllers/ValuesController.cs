@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace chit_chat_api.Controllers
+namespace ChitChatAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
