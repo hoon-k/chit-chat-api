@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build-user-api",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -12,7 +12,27 @@
             "problemMatcher": "$tsc"
         },
         {
-            "label": "publish",
+            "label": "build-discussion-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/discussion-api/discussion-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "build-reports-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/reports-api/reports-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "publish-user-api",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -22,13 +42,55 @@
             "problemMatcher": "$tsc"
         },
         {
-            "label": "watch",
+            "label": "publish-discussion-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/discussion-api/discussion-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "publish-reports-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/reports-api/reports-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "watch-user-api",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "watch",
                 "run",
                 "${workspaceFolder}/src/user-api/user-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "watch-discussion-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/src/discussion-api/discussion-api.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "watch-reports-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/src/reports-api/reports-api.csproj"
             ],
             "problemMatcher": "$tsc"
         }

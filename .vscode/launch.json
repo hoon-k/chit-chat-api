@@ -5,10 +5,10 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (web) - User API",
+            "name": ".NET Core Launch User API",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build-user-api",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/user-api/bin/Debug/netcoreapp2.2/user-api.dll",
             "args": [],
@@ -22,6 +22,46 @@
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/src/user-api/Views"
+            }
+        },
+        {
+            "name": ".NET Core Launch Discussion API",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-user-api",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/dicussion-api/bin/Debug/netcoreapp2.2/dicussion-api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": true
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/src/dicussion-api/Views"
+            }
+        },
+        {
+            "name": ".NET Core Launch Reports API",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-user-api",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/reports-api/bin/Debug/netcoreapp2.2/reports-api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": true
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/src/reports-api/Views"
             }
         },
         {
