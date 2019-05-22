@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/chit-chat-api.csproj"
+                "${workspaceFolder}/src/user-api/user-api.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/chit-chat-api.csproj"
+                "${workspaceFolder}/src/user-api/user-api.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,7 +28,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/chit-chat-api.csproj"
+                "${workspaceFolder}/src/user-api/user-api.csproj"
             ],
             "problemMatcher": "$tsc"
         }
