@@ -3,37 +3,43 @@ services:
     user.api:
         image: chit-chat-api/user-api
         environment:
-            - ConnectionString=Host=database;Username=postgres;Password=Password1!;Database=users
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=users
         ports:
             - "81:80"
         depends_on:
-            - database
+            - sql.data
+            - rabbitmq
     discussion.api:
         image: chit-chat-api/discussion-api
         environment:
-            - ConnectionString=Host=database;Username=postgres;Password=Password1!;Database=discussion
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=discussion
         ports:
             - "82:80"
         depends_on:
-            - database
+            - sql.data
+            - rabbitmq
     reports.api:
         image: chit-chat-api/reports-api
         environment:
-            - ConnectionString=Host=database;Username=postgres;Password=Password1!;Database=reports
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=reports
         ports:
             - "83:80"
         depends_on:
-            - database
+            - sql.data
+            - rabbitmq
+    basket.data:
+        image: redis
+    sql.data:
+        image: postgres:latest
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: Password1!
+    rabbitmq:
+        image: rabbitmq:3-management
     adminer:
         image: adminer
         restart: always
         ports:
             - 8080:8080
         depends_on:
-            - database
-    database:
-        image: postgres:latest
-        restart: always
-        environment:
-            POSTGRES_PASSWORD: Password1!
-    
+            - sql.data
