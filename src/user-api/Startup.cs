@@ -43,10 +43,6 @@ namespace ChitChatAPI.UserAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(setup => {
-                    setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat User API V1");
-                });
             }
             else
             {
@@ -55,6 +51,10 @@ namespace ChitChatAPI.UserAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseSwagger();
+            app.UseSwaggerUI(setup => {
+                setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat User API V1");
+            });
             app.UseMvc();
         }
     }
