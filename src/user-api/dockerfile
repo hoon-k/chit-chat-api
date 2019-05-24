@@ -1,15 +1,17 @@
-FROM  mcr.microsoft.com/dotnet/core/aspnet:2.2 AS base
-WORKDIR /app
-EXPOSE 80
-
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS publish
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 WORKDIR /src
+
+# Copy csproj and restore as distinct layers
+COPY /src/user-api/*.csproj .
+RUN dotnet restore
+
+# Copy everything else and build
 COPY . .
 WORKDIR /src/src/user-api/
-RUN dotnet restore /ignoreprojectextensions:.dcproj
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish -c Release -o out
 
-FROM base AS final
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
 WORKDIR /app
-COPY --from=publish /app .
+COPY --from=build /src/src/user-api/out .
 ENTRYPOINT ["dotnet", "user-api.dll"]
