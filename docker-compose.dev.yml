@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+    user.api:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://0.0.0.0:80
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=users
+        ports:
+            - "81:80"
+    discussion.api:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://0.0.0.0:80
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=discussion
+        ports:
+            - "82:80"
+    reports.api:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://0.0.0.0:80
+            - ConnectionString=Host=sql.data;Username=postgres;Password=Password1!;Database=reports
+        ports:
+            - "83:80"
+    cache.data:
+        ports:
+            - "5103:80"
+    sql.data:
+        environment:
+            POSTGRES_PASSWORD: Password1!
+    rabbitmq:
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+    adminer:
+        ports:
+            - 8080:8080

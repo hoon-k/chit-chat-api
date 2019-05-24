@@ -30,7 +30,7 @@ namespace ChitChatAPI.UserAPI
                 setup.SwaggerDoc(
                     "v1",
                     new Info {
-                        Title = "ChiChat API",
+                        Title = "ChiChat User API",
                         Version = "v1"
                     });
             });
@@ -45,7 +45,7 @@ namespace ChitChatAPI.UserAPI
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(setup => {
-                    setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat API V1");
+                    setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat User API V1");
                 });
             }
             else
