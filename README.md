@@ -22,3 +22,8 @@ Add MVC controller (after installing dotnet-aspnet-codegenerator)
 ```
 dotnet-aspnet-codegenerator
 ```
+
+Inidividual docker build
+```
+docker build -f src/user-api/dockerfile -t user.api .
+```
