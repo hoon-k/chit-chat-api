@@ -29,6 +29,9 @@ services:
     sql.data:
         image: postgres:latest
         restart: always
+    noSql.data:
+        image: mongoDB
+        restart: always
     rabbitmq:
         image: rabbitmq:3-management
     adminer:
@@ -36,6 +39,11 @@ services:
         restart: always
         depends_on:
             - sql.data
+    mongo-express:
+        image: mongo-express
+        restart: always
+        depends_on:
+            - noSql.data
     mobile.bff:
         image: chit-chat-api/api-gateway/mobile-bff:${TAG:-latest}
         build:
@@ -46,6 +54,7 @@ services:
             - discussion.api
             - reports.api
             - sql.data
+            - noSql.data
             - rabbitmq
     web.bff:
         image: chit-chat-api/api-gateway/web-bff:${TAG:-latest}
@@ -57,4 +66,5 @@ services:
             - discussion.api
             - reports.api
             - sql.data
+            - noSql.data
             - rabbitmq

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
+using Npgsql;
 
 namespace ChitChatAPI.UserAPI
 {
@@ -34,6 +35,7 @@ namespace ChitChatAPI.UserAPI
                         Version = "v1"
                     });
             });
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -48,6 +50,11 @@ namespace ChitChatAPI.UserAPI
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+            }
+
+            if (Configuration["Containerized"] == "yes")
+            {
+                DataBaseSeedAsync.SeedAsync(Configuration["ConnectionString"]).Wait();
             }
 
             app.UseHttpsRedirection();
