@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using ChitChatAPI.UserAPI.ViewModel;
 
 namespace ChitChatAPI.UserAPI.Controllers
@@ -12,10 +13,17 @@ namespace ChitChatAPI.UserAPI.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
+        private readonly IConfiguration configuration;
+
+        public ProfileController(IConfiguration configuration) {
+            this.configuration = configuration;
+        }
+
         // GET: api/Profile
         [HttpGet]
         public ActionResult<UserProfileViewModel> Get()
         {
+            var conn = this.configuration.GetConnectionString("PostgresLocal");
             return new UserProfileViewModel("John", "Doe");
         }
 

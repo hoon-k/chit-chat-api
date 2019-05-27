@@ -52,9 +52,13 @@ namespace ChitChatAPI.UserAPI
                 app.UseHsts();
             }
 
-            if (Configuration["Containerized"] == "yes")
+            var isContainerized = Configuration.GetValue<bool>("Containerized");
+            var connString = Configuration.GetConnectionString("PostgresLocal");
+
+            if (isContainerized)
             {
-                DataBaseSeedAsync.SeedAsync(Configuration["ConnectionString"]).Wait();
+                // var connString = Configuration.GetConnectionString("PostgresLocal");
+                DataBaseSeedAsync.SeedAsync(connString).Wait();
             }
 
             app.UseHttpsRedirection();
