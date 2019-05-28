@@ -52,12 +52,10 @@ namespace ChitChatAPI.UserAPI
                 app.UseHsts();
             }
 
-            var isContainerized = Configuration.GetValue<bool>("Containerized");
-            var connString = Configuration.GetConnectionString("PostgresLocal");
-
-            if (isContainerized)
+            var isLocalContext = Configuration["EXECUTION_CONTEXT"].Equals("Local");
+            if (!isLocalContext && env.IsDevelopment())
             {
-                // var connString = Configuration.GetConnectionString("PostgresLocal");
+                var connString = Configuration["ConnectionString"];
                 DataBaseSeedAsync.SeedAsync(connString).Wait();
             }
 
