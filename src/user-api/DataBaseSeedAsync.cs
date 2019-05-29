@@ -12,10 +12,8 @@ namespace ChitChatAPI.UserAPI
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
-
                 await CreateDataBase(connection);
-                // await CreateAccountTable(connection);
-                // await CreateProfileTable(connection);
+                await CreateTables(connection);
             }
         }
 
@@ -31,10 +29,31 @@ namespace ChitChatAPI.UserAPI
                     LC_CTYPE = 'C'
                     TABLESPACE = pg_default
                     CONNECTION LIMIT = -1;
+            ";
 
+            using (var cmd = new NpgsqlCommand())
+            {
+                cmd.Connection = cnx;
+                cmd.CommandText = sql;
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        private static async Task CreateTables(NpgsqlConnection cnx)
+        {
+            var sql = @"
                 CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
                 CREATE EXTENSION IF NOT EXISTS pgcrypto;
                 CREATE TYPE roles AS ENUM ('member', 'admin', 'moderator');
+
+                -- Create users table.
+                CREATE TABLE users
+                (
+                    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
+                    first_name character varying(255) NOT NULL,
+                    last_name character varying(255) NOT NULL,
+                    CONSTRAINT users_pkey PRIMARY KEY (uuid)
+                )
 
                 -- Create account table.
                 CREATE TABLE account
@@ -46,24 +65,10 @@ namespace ChitChatAPI.UserAPI
                     role roles NOT NULL DEFAULT 'member'::roles,
                     user_id uuid NOT NULL,
                     CONSTRAINT account_pkey PRIMARY KEY (uuid)
-                    CONSTRAINT account_fkey FOREIGN KEY (user_id)
+                    CONSTRAINT account_fkey FOREIGN KEY (user_id),
                         REFERENCES users (uuid) MATCH SIMPLE
                         ON UPDATE NO ACTION
                         ON DELETE NO ACTION
-                )
-
-                -- Create initial admin user.
-                INSERT 
-                    INTO account (username, password, role)
-                    VALUES ('admin', crypt('admin', gen_salt('bf', 8)), 'admin');
-                
-                -- Create users table.
-                CREATE TABLE users
-                (
-                    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
-                    first_name character varying(255) NOT NULL,
-                    last_name character varying(255) NOT NULL,
-                    CONSTRAINT users_pkey PRIMARY KEY (uuid)
                 )
 
                 -- Create stored procedre to create a member
@@ -90,6 +95,9 @@ namespace ChitChatAPI.UserAPI
                         (SELECT uuid FROM user_insert)
                     );
                 $BODY$;
+
+                -- Create initial admin user.
+                CALL create_member_user('admin', 'admin', 'Admin', 'User')
             ";
 
             using (var cmd = new NpgsqlCommand())

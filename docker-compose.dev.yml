@@ -28,6 +28,8 @@ services:
     sql.data:
         environment:
             POSTGRES_PASSWORD: Password1!
+        ports:
+            - "5433:5432"
     noSql.data:
         environment:
             MONGO_INITDB_ROOT_USERNAME: root

@@ -28,6 +28,8 @@ services:
         image: redis
     sql.data:
         image: postgres:latest
+        volumes:
+            - src/db-init/*.sql:/docker-entrypoint-initdb.d
         restart: always
     noSql.data:
         image: mongoDB
