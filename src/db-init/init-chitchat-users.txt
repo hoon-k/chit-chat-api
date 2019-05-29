@@ -1,8 +1,3 @@
--- Create chitchat_users database.
-CREATE DATABASE chitchat_users;
-
-\c chitchat_users;
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TYPE roles AS ENUM ('member', 'admin', 'moderator');
@@ -14,7 +9,7 @@ CREATE TABLE users
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
     CONSTRAINT users_pkey PRIMARY KEY (uuid)
-)
+);
 
 -- Create account table.
 CREATE TABLE account
@@ -25,12 +20,12 @@ CREATE TABLE account
     active boolean NOT NULL DEFAULT true,
     role roles NOT NULL DEFAULT 'member'::roles,
     user_id uuid NOT NULL,
-    CONSTRAINT account_pkey PRIMARY KEY (uuid)
-    CONSTRAINT account_fkey FOREIGN KEY (user_id),
+    CONSTRAINT account_pkey PRIMARY KEY (uuid),
+    CONSTRAINT account_fkey FOREIGN KEY (user_id)
         REFERENCES users (uuid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
 
 -- Create stored procedre to create a member
 CREATE OR REPLACE PROCEDURE create_member_user(un character varying, pw character varying, fn character varying, ln character varying)
@@ -58,4 +53,4 @@ AS $BODY$
 $BODY$;
 
 -- Create initial admin user.
-CALL create_member_user('admin', 'admin', 'Admin', 'User')
+CALL create_member_user('admin', 'admin', 'Admin', 'User');
