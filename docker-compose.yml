@@ -24,12 +24,12 @@ services:
         depends_on:
             - sql.data
             - rabbitmq
-    cacche.data:
+    cache.data:
         image: redis
     sql.data:
         image: postgres:latest
         volumes:
-            - src/db-init/*.sql:/docker-entrypoint-initdb.d
+            - src/db-init/.:/docker-entrypoint-initdb.d
         restart: always
     noSql.data:
         image: mongoDB

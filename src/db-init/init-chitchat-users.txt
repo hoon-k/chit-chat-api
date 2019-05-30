@@ -52,5 +52,14 @@ AS $BODY$
     );
 $BODY$;
 
+-- Create stored procedre to authenticate a member
+CREATE OR REPLACE PROCEDURE authenticate_user(un character varying, pw character varying)
+LANGUAGE 'sql'
+AS $BODY$
+    SELECT role, user_id
+    FROM account
+    WHERE username = un AND password = crypt(pw, password);
+$BODY$;
+
 -- Create initial admin user.
 CALL create_member_user('admin', 'admin', 'Admin', 'User');

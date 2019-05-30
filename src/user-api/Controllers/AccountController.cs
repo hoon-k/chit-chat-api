@@ -55,6 +55,33 @@ namespace ChitChatAPI.UserAPI.Controllers
             return reqObj;
         }
 
+        [HttpPost]
+        [Route("auth")]
+        public async Task<ActionResult<Object>> Auth([FromBody] AuthRequest reqObj) {
+            using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
+            {
+                connection.Open();
+
+                using (var cmd = new NpgsqlCommand())
+                {
+                    cmd.Connection = connection;
+                    cmd.CommandText = $"CALL authenticate_user('{reqObj.Username}', '{reqObj.Password}')";
+
+                    try
+                    {
+                        return await cmd.ExecuteNonQueryAsync();
+                    }
+                    catch (System.Data.Common.DbException e)
+                    {
+                        // Bad
+                        return e.Message;
+                    }
+                }
+            }
+
+            // return reqObj;
+        }
+
         // GET: api/Account/5
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)
