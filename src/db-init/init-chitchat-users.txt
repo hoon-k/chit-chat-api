@@ -52,14 +52,15 @@ AS $BODY$
     );
 $BODY$;
 
--- Create stored procedre to authenticate a member
-CREATE OR REPLACE PROCEDURE authenticate_user(un character varying, pw character varying)
-LANGUAGE 'sql'
+-- Create function to authenticate a member
+CREATE OR REPLACE FUNCTION authenticate_user(un character varying, pw character varying)
+RETURNS TABLE (user_id uuid, role roles)
 AS $BODY$
-    SELECT role, user_id
-    FROM account
-    WHERE username = un AND password = crypt(pw, password);
-$BODY$;
+    SELECT user_id, role 
+    FROM account 
+    WHERE username = un AND password = crypt(pw, password); 
+$BODY$
+LANGUAGE sql;
 
 -- Create initial admin user.
-CALL create_member_user('admin', 'admin', 'Admin', 'User');
+CALL create_member_user('admin', 'admin', 'Admin', 'Admin');

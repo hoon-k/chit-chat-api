@@ -52,7 +52,7 @@ namespace ChitChatAPI.UserAPI
                 app.UseHsts();
             }
 
-            var isLocalContext = Configuration["EXECUTION_CONTEXT"].Equals("Local");
+            var isLocalContext = Configuration["ExecutionContext"].Equals("Local");
             if (!isLocalContext && env.IsDevelopment())
             {
                 var connString = Configuration["ConnectionString"];

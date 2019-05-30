@@ -2,7 +2,7 @@ namespace ChitChatAPI.UserAPI.DataModel
 {
     using System.Collections.Generic;
 
-    public class AuthRequest
+    public class LoginRequest
     {
         public string Password { get; set; }
 

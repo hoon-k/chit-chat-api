@@ -30,56 +30,23 @@ namespace ChitChatAPI.UserAPI.Controllers
 
         [HttpPost]
         [Route("create")]
-        public async Task<ActionResult<Object>> Create([FromBody] CreateAccountRequest reqObj) {
+        public async Task<ActionResult<object>> Create([FromBody] CreateAccountRequest reqObj) {
             using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
             {
-                connection.Open();
-
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = connection;
-                    cmd.CommandText = $"CALL create_member_user('{reqObj.Username}', '{reqObj.Password}', '{reqObj.FirstName}', '{reqObj.LastName}')";
-
-                    try
-                    {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                    catch (System.Data.Common.DbException e)
-                    {
-                        // Bad
-                        return e.Message;
-                    }
-                }
+                var sql = $"CALL create_member_user('{reqObj.Username}', '{reqObj.Password}', '{reqObj.FirstName}', '{reqObj.LastName}')";
+                return await connection.ExecuteAsync(sql);
             }
-
-            return reqObj;
         }
 
         [HttpPost]
-        [Route("auth")]
-        public async Task<ActionResult<Object>> Auth([FromBody] AuthRequest reqObj) {
+        [Route("login")]
+        public async Task<ActionResult<IEnumerable<object>>> Login([FromBody] LoginRequest reqObj) {
             using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
             {
-                connection.Open();
-
-                using (var cmd = new NpgsqlCommand())
-                {
-                    cmd.Connection = connection;
-                    cmd.CommandText = $"CALL authenticate_user('{reqObj.Username}', '{reqObj.Password}')";
-
-                    try
-                    {
-                        return await cmd.ExecuteNonQueryAsync();
-                    }
-                    catch (System.Data.Common.DbException e)
-                    {
-                        // Bad
-                        return e.Message;
-                    }
-                }
+                var sql = $"SELECT * FROM authenticate_user('{reqObj.Username}', '{reqObj.Password}')";
+                var result = await connection.QueryAsync<object>(sql);
+                return result.ToList();
             }
-
-            // return reqObj;
         }
 
         // GET: api/Account/5
