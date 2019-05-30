@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using ChitChatAPI.UserAPI.ViewModel;
 
+using Dapper;
+using Npgsql;
+
 namespace ChitChatAPI.UserAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -20,18 +23,15 @@ namespace ChitChatAPI.UserAPI.Controllers
         }
 
         // GET: api/Profile
-        [HttpGet]
-        public ActionResult<UserProfileViewModel> Get()
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<UserProfileViewModel>> Profile(string uuid)
         {
-            var conn = this.configuration.GetConnectionString("PostgresLocal");
-            return new UserProfileViewModel("John", "Doe");
-        }
-
-        // GET: api/Profile/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
+            using (var connection = new NpgsqlConnection(this.configuration["ConnectionString"]))
+            {
+                var sql = $"SELECT * FROM users WHERE uuid='{uuid}'";
+                var result = await connection.QueryAsync<UserProfileViewModel>(sql);
+                return result.First();
+            }
         }
 
         // POST: api/Profile

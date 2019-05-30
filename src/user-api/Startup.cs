@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Npgsql;
+using Dapper;
 
 namespace ChitChatAPI.UserAPI
 {
@@ -20,6 +21,7 @@ namespace ChitChatAPI.UserAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         }
 
         public IConfiguration Configuration { get; }

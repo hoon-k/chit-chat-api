@@ -4,9 +4,11 @@ namespace ChitChatAPI.UserAPI.ViewModel
 
     public class UserProfileViewModel
     {
-        public string FirstName { get; private set; }
+        public string FirstName { get; set; }
 
-        public string LastName { get; private set; }
+        public string LastName { get; set; }
+
+        public UserProfileViewModel() { }
 
         public UserProfileViewModel(string firstName, string lastName)
         {
