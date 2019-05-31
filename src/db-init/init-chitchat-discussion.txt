@@ -10,11 +10,12 @@ CREATE TABLE authors
     created_date timestamp with time zone NOT NULL DEFAULT now(),
     role roles NOT NULL DEFAULT 'member'::roles,
     CONSTRAINT authors_pkey PRIMARY KEY (uuid)
-)
+);
 
+CREATE SEQUENCE posts_id_seq;
 CREATE TABLE posts
 (
-    id integer NOT NULL DEFAULT nextval('posts_id_seq'::regclass) ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    id integer NOT NULL DEFAULT nextval('posts_id_seq'::regclass),
     body text NOT NULL,
     author uuid NOT NULL DEFAULT uuid_generate_v4(),
     created_date timestamp with time zone NOT NULL DEFAULT now(),
@@ -23,7 +24,7 @@ CREATE TABLE posts
         REFERENCES public.authors (uuid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
 
 CREATE TABLE topics
 (
@@ -37,7 +38,7 @@ CREATE TABLE topics
         REFERENCES public.authors (uuid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
 
 CREATE OR REPLACE PROCEDURE create_starter_post(post_body text, author_id uuid, topic_title character varying)
 LANGUAGE sql
@@ -54,7 +55,8 @@ AS $$
     VALUES (
         topic_title,
         (SELECT uuid FROM authors WHERE uuid = author_id),
-        ARRAY [(SELECT id FROM post_insert)]);
+        ARRAY [(SELECT id FROM post_insert)]
+    );
 $$;
 
 CREATE OR REPLACE PROCEDURE create_post(post_body text, author_id uuid, topic_id uuid)
@@ -69,6 +71,31 @@ AS $$
 
     UPDATE topics
     SET posts = array_append(posts, (SELECT id FROM post_insert))
-    WHERE
-        uuid = topic_id;
+    WHERE uuid = topic_id;
 $$;
+
+CREATE OR REPLACE FUNCTION get_posts(topic_id uuid)
+RETURNS TABLE (title character varying, body text, screen_name character varying, created_date timestamp with time zone)
+AS $BODY$
+    SELECT t.title, p.body, a.screen_name, p.created_date
+    FROM (SELECT title, uuid, unnest(posts) post_id FROM topics) as t
+    LEFT JOIN posts p on p.id=post_id
+    LEFT JOIN authors a on a.uuid = p.author
+    WHERE t.uuid = topic_id
+    ORDER BY p.created_date
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_all_topics()
+RETURNS TABLE (title character varying, screen_name character varying, created_date timestamp with time zone)
+AS $BODY$
+    SELECT t.title, a.screen_name, t.created_date
+    FROM topics t
+    LEFT JOIN authors a on t.author = a.uuid
+    ORDER BY t.created_date
+$BODY$
+LANGUAGE sql;
+
+INSERT
+INTO authors(screen_name)
+VALUES ('TestAuthor');

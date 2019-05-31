@@ -19,6 +19,11 @@ Install .NET CLI tools
 ```
 Add ```~/.dotnet/tools``` to PATH.
 
+Install CodeGen Design package
+```
+dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+```
+
 Add MVC controller (after installing dotnet-aspnet-codegenerator)
 ```
 dotnet aspnet-codegenerator controller -name <controller_class_name> -actions -api -outDir Controllers

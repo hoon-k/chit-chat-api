@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
+using Dapper;
 
 namespace ChitChatAPI.DiscussionAPI
 {
@@ -18,6 +20,7 @@ namespace ChitChatAPI.DiscussionAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         }
 
         public IConfiguration Configuration { get; }
@@ -25,6 +28,15 @@ namespace ChitChatAPI.DiscussionAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSwaggerGen(setup => {
+                setup.SwaggerDoc(
+                    "v1",
+                    new Info {
+                        Title = "ChiChat Discussion API",
+                        Version = "v1"
+                    });
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -42,6 +54,9 @@ namespace ChitChatAPI.DiscussionAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseSwaggerUI(setup => {
+                setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat Discussion API V1");
+            });
             app.UseMvc();
         }
     }

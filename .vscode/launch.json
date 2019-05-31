@@ -29,7 +29,7 @@
             "name": "Launch Discussion API",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-user-api",
+            "preLaunchTask": "build-discussion-api",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/dicussion-api/bin/Debug/netcoreapp2.2/dicussion-api.dll",
             "args": [],
@@ -50,7 +50,7 @@
             "name": "Launch Reports API",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-user-api",
+            "preLaunchTask": "build-reports-api",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/reports-api/bin/Debug/netcoreapp2.2/reports-api.dll",
             "args": [],
