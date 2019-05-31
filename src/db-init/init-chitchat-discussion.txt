@@ -1,0 +1,74 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TYPE roles AS ENUM ('member', 'admin', 'moderator');
+
+CREATE TABLE authors
+(
+    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
+    first_name character varying(255),
+    last_name character varying(255),
+    screen_name character varying(255) NOT NULL,
+    created_date timestamp with time zone NOT NULL DEFAULT now(),
+    role roles NOT NULL DEFAULT 'member'::roles,
+    CONSTRAINT authors_pkey PRIMARY KEY (uuid)
+)
+
+CREATE TABLE posts
+(
+    id integer NOT NULL DEFAULT nextval('posts_id_seq'::regclass) ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    body text NOT NULL,
+    author uuid NOT NULL DEFAULT uuid_generate_v4(),
+    created_date timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT posts_pkey PRIMARY KEY (id),
+    CONSTRAINT author_fkey FOREIGN KEY (author)
+        REFERENCES public.authors (uuid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+CREATE TABLE topics
+(
+    title character varying(255) NOT NULL,
+    posts integer[] NOT NULL,
+    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
+    created_date timestamp with time zone NOT NULL DEFAULT now(),
+    author uuid NOT NULL,
+    CONSTRAINT topics_pkey PRIMARY KEY (uuid),
+    CONSTRAINT author_fkey FOREIGN KEY (author)
+        REFERENCES public.authors (uuid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+CREATE OR REPLACE PROCEDURE create_starter_post(post_body text, author_id uuid, topic_title character varying)
+LANGUAGE sql
+AS $$
+    WITH post_insert AS (
+        INSERT
+        INTO posts (body, author)
+        VALUES (post_body, (SELECT uuid FROM authors WHERE uuid = author_id))
+        RETURNING id
+    )
+
+    INSERT 
+    INTO topics (title, author, posts)
+    VALUES (
+        topic_title,
+        (SELECT uuid FROM authors WHERE uuid = author_id),
+        ARRAY [(SELECT id FROM post_insert)]);
+$$;
+
+CREATE OR REPLACE PROCEDURE create_post(post_body text, author_id uuid, topic_id uuid)
+LANGUAGE sql
+AS $$
+    WITH post_insert AS (
+        INSERT
+        INTO posts (body, author)
+        VALUES (post_body, (SELECT uuid FROM authors WHERE uuid = author_id))
+        RETURNING id
+    )
+
+    UPDATE topics
+    SET posts = array_append(posts, (SELECT id FROM post_insert))
+    WHERE
+        uuid = topic_id;
+$$;
