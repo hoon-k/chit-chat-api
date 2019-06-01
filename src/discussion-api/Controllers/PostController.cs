@@ -33,7 +33,7 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
                     sql = $"CALL create_starter_post('{reqObj.Body}', '{reqObj.AuthorID}', '{reqObj.TopicTitle}')";
                 }
 
-                return await connection.ExecuteAsync(sql);
+                return Ok(await connection.ExecuteAsync(sql));
             }
         }
 
@@ -46,33 +46,58 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
                 var sql = $"SELECT * FROM get_posts('{topicId}')";
 
                 var result = await connection.QueryAsync<object>(sql);
-                return result.ToList();
+                return Ok(result.ToList());
             }
         }
 
-        // GET: api/Post
-        [HttpGet("{id}")]
-        public IEnumerable<string> Posts(string id)
+        [HttpGet()]
+        [Route("{postId}")]
+        public async Task<ActionResult<object>> GetSinglePost(string topicId)
         {
-            return new string[] { "value1", "value2" };
+            using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
+            {
+                var sql = $"SELECT * FROM get_posts('{topicId}')";
+
+                var result = await connection.QueryAsync<object>(sql);
+                return Ok(result.FirstOrDefault());
+            }
         }
 
-        // POST: api/Post
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpDelete]
+        [Route("{postId}/topic/{topicId}")]
+        public async Task<ActionResult<object>> DeleteSinglePost(string postId, string topicId)
         {
+            using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
+            {
+                var sql = $"CALL delete_post({topicId}, {postId})";
+                return Ok(await connection.ExecuteAsync(sql));
+            }
         }
 
-        // PUT: api/Post/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        // Keep as examples
+        // // GET: api/Post
+        // [HttpGet("{id}")]
+        // public IEnumerable<string> Posts(string id)
+        // {
+        //     return new string[] { "value1", "value2" };
+        // }
 
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        // // POST: api/Post
+        // [HttpPost]
+        // public void Post([FromBody] string value)
+        // {
+        // }
+
+        // // PUT: api/Post/5
+        // [HttpPut("{id}")]
+        // public void Put(int id, [FromBody] string value)
+        // {
+        // }
+
+        // // DELETE: api/ApiWithActions/5
+        // [HttpDelete("{id}")]
+        // public void Delete(int id)
+        // {
+        // }
     }
 }

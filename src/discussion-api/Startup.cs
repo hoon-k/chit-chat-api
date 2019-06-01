@@ -54,6 +54,7 @@ namespace ChitChatAPI.DiscussionAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseSwagger();
             app.UseSwaggerUI(setup => {
                 setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat Discussion API V1");
             });

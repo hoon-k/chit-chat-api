@@ -19,6 +19,7 @@ CREATE TABLE posts
     body text NOT NULL,
     author uuid NOT NULL DEFAULT uuid_generate_v4(),
     created_date timestamp with time zone NOT NULL DEFAULT now(),
+    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
     CONSTRAINT posts_pkey PRIMARY KEY (id),
     CONSTRAINT author_fkey FOREIGN KEY (author)
         REFERENCES public.authors (uuid) MATCH SIMPLE
@@ -72,6 +73,25 @@ AS $$
     UPDATE topics
     SET posts = array_append(posts, (SELECT id FROM post_insert))
     WHERE uuid = topic_id;
+$$;
+
+CREATE OR REPLACE PROCEDURE delete_post(topic_id uuid, post_id uuid)
+LANGUAGE sql
+AS $$
+    WITH post_delete AS (
+        DELETE
+        FROM posts
+        WHERE uuid=post_id
+        RETURNING id
+    )
+
+    UPDATE topics
+    SET posts = array_remove(posts, (SELECT id FROM post_delete))
+    WHERE uuid=topic_id;
+
+    DELETE
+    FROM topics
+    WHERE cardinality(posts)=0
 $$;
 
 CREATE OR REPLACE FUNCTION get_posts(topic_id uuid)

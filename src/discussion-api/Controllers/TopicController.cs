@@ -28,7 +28,7 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
             {
                 var sql = $"SELECT * FROM get_all_topics()";
                 var result = await connection.QueryAsync<object>(sql);
-                return result.ToList();
+                return Ok(result.ToList());
             }
         }
 
