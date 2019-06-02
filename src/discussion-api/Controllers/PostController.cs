@@ -25,6 +25,12 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
         [Route("create")]
         public async Task<ActionResult<object>> Create([FromBody] PostRequest reqObj)
         {
+            if (String.IsNullOrWhiteSpace(reqObj.Body) 
+                || String.IsNullOrWhiteSpace(reqObj.AuthorID)
+                || (String.IsNullOrWhiteSpace(reqObj.TopicID) && String.IsNullOrWhiteSpace(reqObj.TopicTitle))) {
+                return BadRequest();
+            }
+
             using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
             {
                 var sql = $"CALL create_post('{reqObj.Body}', '{reqObj.AuthorID}', '{reqObj.TopicID}')";
