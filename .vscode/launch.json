@@ -31,9 +31,9 @@
             "request": "launch",
             "preLaunchTask": "build-discussion-api",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/dicussion-api/bin/Debug/netcoreapp2.2/dicussion-api.dll",
+            "program": "${workspaceFolder}/src/discussion-api/bin/Debug/netcoreapp2.2/discussion-api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/dicussion-api",
+            "cwd": "${workspaceFolder}/src/discussion-api",
             "stopAtEntry": false,
             "launchBrowser": {
                 "enabled": true
@@ -43,7 +43,7 @@
                 "EXECUTION_CONTEXT": "Local"
             },
             "sourceFileMap": {
-                "/Views": "${workspaceFolder}/src/dicussion-api/Views"
+                "/Views": "${workspaceFolder}/src/discussion-api/Views"
             }
         },
         {

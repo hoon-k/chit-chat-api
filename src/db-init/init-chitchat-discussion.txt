@@ -12,28 +12,13 @@ CREATE TABLE authors
     CONSTRAINT authors_pkey PRIMARY KEY (uuid)
 );
 
-CREATE SEQUENCE posts_id_seq;
-CREATE TABLE posts
-(
-    id integer NOT NULL DEFAULT nextval('posts_id_seq'::regclass),
-    body text NOT NULL,
-    author uuid NOT NULL DEFAULT uuid_generate_v4(),
-    created_date timestamp with time zone NOT NULL DEFAULT now(),
-    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
-    CONSTRAINT posts_pkey PRIMARY KEY (id),
-    CONSTRAINT author_fkey FOREIGN KEY (author)
-        REFERENCES public.authors (uuid) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-);
-
 CREATE TABLE topics
 (
     title character varying(255) NOT NULL,
-    posts integer[] NOT NULL,
     uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
     created_date timestamp with time zone NOT NULL DEFAULT now(),
     author uuid NOT NULL,
+    post_count integer NOT NULL,
     CONSTRAINT topics_pkey PRIMARY KEY (uuid),
     CONSTRAINT author_fkey FOREIGN KEY (author)
         REFERENCES public.authors (uuid) MATCH SIMPLE
@@ -41,67 +26,79 @@ CREATE TABLE topics
         ON DELETE NO ACTION
 );
 
+CREATE TABLE posts
+(
+    body text NOT NULL,
+    author uuid NOT NULL DEFAULT uuid_generate_v4(),
+    created_date timestamp with time zone NOT NULL DEFAULT now(),
+    uuid uuid NOT NULL DEFAULT uuid_generate_v4(),
+    topic_id uuid NOT NULL,
+    CONSTRAINT posts_pkey PRIMARY KEY (uuid),
+    CONSTRAINT author_fkey FOREIGN KEY (author)
+        REFERENCES public.authors (uuid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT topic_fkey FOREIGN KEY (topic_id)
+        REFERENCES public.topics (uuid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
 CREATE OR REPLACE PROCEDURE create_starter_post(post_body text, author_id uuid, topic_title character varying)
 LANGUAGE sql
 AS $$
-    WITH post_insert AS (
-        INSERT
-        INTO posts (body, author)
-        VALUES (post_body, (SELECT uuid FROM authors WHERE uuid = author_id))
-        RETURNING id
+    WITH topic_insert AS (
+        INSERT 
+        INTO topics (title, author, post_count)
+        VALUES (
+            topic_title,
+            author_id,
+            1
+        )
+        RETURNING uuid
     )
 
-    INSERT 
-    INTO topics (title, author, posts)
-    VALUES (
-        topic_title,
-        (SELECT uuid FROM authors WHERE uuid = author_id),
-        ARRAY [(SELECT id FROM post_insert)]
-    );
+    INSERT
+    INTO posts (body, author, topic_id)
+    VALUES (post_body, author_id, (SELECT uuid FROM topic_insert));
 $$;
 
 CREATE OR REPLACE PROCEDURE create_post(post_body text, author_id uuid, topic_id uuid)
 LANGUAGE sql
 AS $$
-    WITH post_insert AS (
-        INSERT
-        INTO posts (body, author)
-        VALUES (post_body, (SELECT uuid FROM authors WHERE uuid = author_id))
-        RETURNING id
-    )
+    INSERT
+    INTO posts (body, author, topic_id)
+    VALUES (post_body, author_id, topic_id);
 
     UPDATE topics
-    SET posts = array_append(posts, (SELECT id FROM post_insert))
+    SET post_count = post_count + 1
     WHERE uuid = topic_id;
 $$;
 
 CREATE OR REPLACE PROCEDURE delete_post(topic_id uuid, post_id uuid)
 LANGUAGE sql
 AS $$
-    WITH post_delete AS (
-        DELETE
-        FROM posts
-        WHERE uuid=post_id
-        RETURNING id
-    )
+    DELETE
+    FROM posts
+    WHERE uuid = post_id;
 
     UPDATE topics
-    SET posts = array_remove(posts, (SELECT id FROM post_delete))
-    WHERE uuid=topic_id;
+    SET post_count = post_count - 1
+    WHERE uuid = topic_id;
 
     DELETE
     FROM topics
-    WHERE cardinality(posts)=0
+    WHERE post_count <= 0
 $$;
 
 CREATE OR REPLACE FUNCTION get_posts(topic_id uuid)
 RETURNS TABLE (title character varying, body text, screen_name character varying, created_date timestamp with time zone)
 AS $BODY$
     SELECT t.title, p.body, a.screen_name, p.created_date
-    FROM (SELECT title, uuid, unnest(posts) post_id FROM topics) as t
-    LEFT JOIN posts p on p.id=post_id
+    FROM posts p
+    LEFT JOIN topics t on t.uuid=topic_id
     LEFT JOIN authors a on a.uuid = p.author
-    WHERE t.uuid = topic_id
+    WHERE p.topic_id = topic_id
     ORDER BY p.created_date
 $BODY$
 LANGUAGE sql;

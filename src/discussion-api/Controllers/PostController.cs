@@ -69,7 +69,7 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
         {
             using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
             {
-                var sql = $"CALL delete_post({topicId}, {postId})";
+                var sql = $"CALL delete_post('{topicId}', '{postId}')";
                 return Ok(await connection.ExecuteAsync(sql));
             }
         }
