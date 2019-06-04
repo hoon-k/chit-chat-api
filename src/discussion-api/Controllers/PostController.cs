@@ -52,6 +52,10 @@ namespace ChitChatAPI.DiscussionAPI.Controllers
                 var sql = $"SELECT * FROM get_posts('{topicId}')";
 
                 var result = await connection.QueryAsync<object>(sql);
+                if (result == null || result.Count() == 0) {
+                    return NotFound();
+                }
+
                 return Ok(result.ToList());
             }
         }

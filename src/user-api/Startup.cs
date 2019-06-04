@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Npgsql;
 using Dapper;
+using RabbitMQ.Client;
+using ChitChatAPI.Common.EventBusRabbitMQ;
 
 namespace ChitChatAPI.UserAPI
 {
@@ -39,6 +41,35 @@ namespace ChitChatAPI.UserAPI
             });
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
+                {
+                    // var settings = sp.GetRequiredService<IOptions<CatalogSettings>>().Value;
+                    var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
+
+                    var factory = new ConnectionFactory()
+                    {
+                        HostName = Configuration["EventBusConnection"],
+                        DispatchConsumersAsync = true
+                    };
+
+                    if (!string.IsNullOrEmpty(Configuration["EventBusUserName"]))
+                    {
+                        factory.UserName = Configuration["EventBusUserName"];
+                    }
+
+                    if (!string.IsNullOrEmpty(Configuration["EventBusPassword"]))
+                    {
+                        factory.Password = Configuration["EventBusPassword"];
+                    }
+
+                    // var retryCount = 5;
+                    // if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
+                    // {
+                    //     retryCount = int.Parse(Configuration["EventBusRetryCount"]);
+                    // }
+
+                    return new DefaultRabbitMQPersistentConnection(factory);
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
