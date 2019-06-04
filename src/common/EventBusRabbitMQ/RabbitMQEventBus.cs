@@ -6,6 +6,11 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
 {
     public class RabbitMQEventBus : IEventBus
     {
+        public RabbitMQEventBus(IRabbitMQPersistentConnection persistentConnection, IEventBusSubscriptionsManager subManager, string queueName)
+        {
+
+        }
+
         public void Publish()
         {
 

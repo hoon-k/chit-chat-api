@@ -15,6 +15,7 @@ using Npgsql;
 using Dapper;
 using RabbitMQ.Client;
 using ChitChatAPI.Common.EventBusRabbitMQ;
+using ChitChatAPI.Common.Event;
 
 namespace ChitChatAPI.UserAPI
 {
@@ -69,7 +70,26 @@ namespace ChitChatAPI.UserAPI
                     // }
 
                     return new DefaultRabbitMQPersistentConnection(factory);
-                });
+                })
+            ;
+
+            var subscriptionClientName = Configuration["SubscriptionClientName"];
+            services.AddSingleton<IEventBus, RabbitMQEventBus>(sp =>
+                {
+                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
+                    // var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
+                    // var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
+                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+
+                    // var retryCount = 5;
+                    // if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
+                    // {
+                    //     retryCount = int.Parse(Configuration["EventBusRetryCount"]);
+                    // }
+
+                    return new RabbitMQEventBus(rabbitMQPersistentConnection, eventBusSubcriptionsManager, subscriptionClientName);
+                }
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
