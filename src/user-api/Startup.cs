@@ -45,7 +45,7 @@ namespace ChitChatAPI.UserAPI
             services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
                 {
                     // var settings = sp.GetRequiredService<IOptions<CatalogSettings>>().Value;
-                    var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
+                    // var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
 
                     var factory = new ConnectionFactory()
                     {
