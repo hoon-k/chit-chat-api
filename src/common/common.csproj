@@ -5,7 +5,8 @@
         <RootNamespace>ChitChatAPI.Common</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />   
+        <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />   
         <PackageReference Include="RabbitMQ.Client" Version="5.0.1" />
     </ItemGroup>
 </Project>

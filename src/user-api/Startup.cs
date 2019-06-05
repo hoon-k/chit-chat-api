@@ -15,7 +15,7 @@ using Npgsql;
 using Dapper;
 using RabbitMQ.Client;
 using ChitChatAPI.Common.EventBusRabbitMQ;
-using ChitChatAPI.Common.Event;
+using ChitChatAPI.Common.EventBus;
 
 namespace ChitChatAPI.UserAPI
 {
