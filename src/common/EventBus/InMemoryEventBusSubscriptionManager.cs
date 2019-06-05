@@ -6,11 +6,11 @@ using ChitChatAPI.Common.Event;
 
 namespace ChitChatAPI.Common.EventBus
 {
-    public class InMemoryRventBusSubscriptionMamnager : IEventBusSubscriptionsManager
+    public class InMemoryEventBusSubscriptionManager : IEventBusSubscriptionsManager
     {
-        private readonly Dictionary<string, List<Func<IntegrationEvent, Task>>> handlers;
+        private readonly Dictionary<string, List<IIntegrationEventHandler<Type>>> handlers;
 
-        public InMemoryRventBusSubscriptionMamnager()
+        public InMemoryEventBusSubscriptionManager()
         {
             this.handlers = new Dictionary<string, List<Func<IntegrationEvent, Task>>>();
         }

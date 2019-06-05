@@ -110,10 +110,6 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
             }
         }
 
-        private void UnsubscribeInternal(string eventName) {
-
-        }
-
         private void StartBasicConcsume()
         {
             if (this.consumerChannel != null)

@@ -8,10 +8,19 @@ namespace ChitChatAPI.Common.EventBus
 {
     public interface IEventBusSubscriptionsManager
     {
-        void AddSubscription(string eventName, Func<IntegrationEvent, Task> handler);
-        void RemoveSubscription(string eventName, Func<IntegrationEvent, Task>  handler);
-        bool HasSubscriptionsForEvent(string eventName);
-        List<Func<IntegrationEvent, Task>> GetHandlersForEvent(string eventName);
+        // void AddSubscription(string eventName, Func<IntegrationEvent, Task> handler);
+        void AddSubscription<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>;
+
+        // void RemoveSubscription(string eventName, Func<IntegrationEvent, Task>  handler);
+        void RemoveSubscription<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>;
+
+        // bool HasSubscriptionsForEvent(string eventName);
+        List<IIntegrationEventHandler<T>> GetHandlersForEvent<T>()
+            where T : IntegrationEvent;
         void Clear();
     }
 }

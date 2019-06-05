@@ -90,6 +90,8 @@ namespace ChitChatAPI.UserAPI
                     return new RabbitMQEventBus(rabbitMQPersistentConnection, eventBusSubcriptionsManager, subscriptionClientName);
                 }
             );
+
+            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -118,6 +120,9 @@ namespace ChitChatAPI.UserAPI
                 setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat User API V1");
             });
             app.UseMvc();
+
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe("UserUpdateEvent", )
         }
     }
 }
