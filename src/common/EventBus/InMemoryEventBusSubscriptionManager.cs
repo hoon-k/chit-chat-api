@@ -8,11 +8,27 @@ namespace ChitChatAPI.Common.EventBus
 {
     public class InMemoryEventBusSubscriptionManager : IEventBusSubscriptionsManager
     {
-        private readonly Dictionary<string, List<IIntegrationEventHandler<Type>>> handlers;
+        private readonly Dictionary<string, List<Type>> handlers;
+        private readonly List<Type> eventTypes;
 
         public InMemoryEventBusSubscriptionManager()
         {
-            this.handlers = new Dictionary<string, List<Func<IntegrationEvent, Task>>>();
+            this.handlers = new Dictionary<string, List<Type>>();
+            this.eventTypes = new List<Type>();
+        }
+
+        public void AddSubscription<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>
+        {
+
+        }
+
+        public void RemoveSubscription<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>
+        {
+
         }
 
         public void AddSubscription(string eventName, Func<IntegrationEvent, Task> handler)
