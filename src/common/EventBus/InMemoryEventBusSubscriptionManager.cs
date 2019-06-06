@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using RabbitMQ.Client.Events;
 using ChitChatAPI.Common.Event;
@@ -21,28 +22,29 @@ namespace ChitChatAPI.Common.EventBus
             where T : IntegrationEvent
             where TH : IIntegrationEventHandler<T>
         {
+            var eventName = this.GetEventName<T>();
+            
+            if (!this.HasSubscriptionsForEvent(eventName))
+            {
+                this.handlers[eventName] = new List<Type>();
+            }
 
+            this.handlers[eventName].Add(typeof(TH));
         }
 
         public void RemoveSubscription<T, TH>()
             where T : IntegrationEvent
             where TH : IIntegrationEventHandler<T>
         {
+            var eventName = this.GetEventName<T>();
 
-        }
-
-        public void AddSubscription(string eventName, Func<IntegrationEvent, Task> handler)
-        {
-            if (this.handlers[eventName] == null) {
-                this.handlers[eventName] = new List<Func<IntegrationEvent, Task>>();
+            if (!this.HasSubscriptionsForEvent(eventName))
+            {
+                return;
             }
 
-            this.handlers[eventName].Add(handler);
-        }
-
-        public void RemoveSubscription(string eventName, Func<IntegrationEvent, Task> handler)
-        {
-            if (this.handlers[eventName] != null) {
+            var handler = this.handlers[eventName].SingleOrDefault((hdlrType) => hdlrType == typeof(TH));
+            if (handler != null) {
                 this.handlers[eventName].Remove(handler);
             }
         }
@@ -51,13 +53,28 @@ namespace ChitChatAPI.Common.EventBus
             return this.handlers[eventName] != null;
         }
 
-        public List<Func<IntegrationEvent, Task>> GetHandlersForEvent(string eventName) {
+        public IEnumerable<Type> GetHandlersForEvent(string eventName)
+        {
             return this.handlers[eventName];
+        }
+
+        public IEnumerable<TH> GetHandlersForEvent<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>
+        {
+            var eventName = this.GetEventName<T>();
+            return this.handlers[eventName] as List<TH>;
         }
 
         public void Clear()
         {
             this.handlers.Clear();
+        }
+
+        public string GetEventName<T>()
+            where T : IntegrationEvent
+        {
+            return typeof(T).Name;
         }
     }
 }

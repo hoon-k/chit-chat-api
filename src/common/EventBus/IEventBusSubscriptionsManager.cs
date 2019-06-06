@@ -19,8 +19,17 @@ namespace ChitChatAPI.Common.EventBus
             where TH : IIntegrationEventHandler<T>;
 
         // bool HasSubscriptionsForEvent(string eventName);
-        List<IIntegrationEventHandler<T>> GetHandlersForEvent<T>()
-            where T : IntegrationEvent;
+        IEnumerable<TH> GetHandlersForEvent<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>;
+
+        IEnumerable<Type> GetHandlersForEvent(string eventName);
+
         void Clear();
+
+        string GetEventName<T>()
+            where T : IntegrationEvent;
+
+        bool HasSubscriptionsForEvent(string eventName);
     }
 }

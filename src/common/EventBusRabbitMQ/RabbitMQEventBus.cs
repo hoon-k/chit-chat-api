@@ -26,7 +26,7 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
             this.consumerChannel = this.CreateConsumerChannel();
         }
 
-        public void Publish(string eventName, IntegrationEvent evt)
+        public void Publish(IntegrationEvent evt)
         {
             using (var channel = this.persistentConnection.CreateModel())
             {
@@ -41,6 +41,7 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
                 var properties = channel.CreateBasicProperties();
                 properties.DeliveryMode = 2;
 
+                var eventName = evt.GetType().Name;
                 channel.BasicPublish(
                     exchange: EXCHANGE_NAME,
                     routingKey: eventName,
@@ -51,16 +52,20 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
             }
         }
 
-        public void Subscribe(string eventName, Func<IntegrationEvent, Task> handler)
+        public void Subscribe<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>
         {
-            this.SubscribeInternal(eventName);
-            this.subManager.AddSubscription(eventName, handler);
+            this.SubscribeInternal<T>();
+            this.subManager.AddSubscription<T, TH>();
             this.StartBasicConcsume();
         }
 
-        public void Unsubscribe(string eventName, Func<IntegrationEvent, Task>  handler)
+        public void Unsubscribe<T, TH>()
+            where T : IntegrationEvent
+            where TH : IIntegrationEventHandler<T>
         {
-            this.subManager.RemoveSubscription(eventName, handler);
+            this.subManager.RemoveSubscription<T, TH>();
         }
 
         public void Dispose()
@@ -96,7 +101,10 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
             return channel;
         }
 
-        private void SubscribeInternal(string eventName) {
+        private void SubscribeInternal<T>()
+            where T : IntegrationEvent
+        {
+            var eventName = this.subManager.GetEventName<T>();
             if (!this.subManager.HasSubscriptionsForEvent(eventName))
             {
                 using (var ch = this.persistentConnection.CreateModel())
@@ -135,7 +143,7 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
                 var handlers = this.subManager.GetHandlersForEvent(eventName);
                 foreach (var handler in handlers) {
                     var integrationEvent = JsonConvert.DeserializeObject(message) as IntegrationEvent;
-                    await handler.Invoke(integrationEvent);
+                    await ((IIntegrationEventHandler<IntegrationEvent>)handler).Handle(integrationEvent);
                 }
             }
         }

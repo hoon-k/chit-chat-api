@@ -5,7 +5,7 @@ using ChitChatAPI.Common.EventBus;
 
 namespace ChitChatAPI.UserAPI.IntegrationsEvents.Services
 {
-    public class UserIntegrationEventService : IIntegrationServiceEvent
+    public class UserIntegrationEventService : IIntegrationEventService
     {
         private readonly IEventBus eventBus;
 
@@ -16,7 +16,7 @@ namespace ChitChatAPI.UserAPI.IntegrationsEvents.Services
 
         public void PublishThroughEventBus(IntegrationEvent evt)
         {
-            this.eventBus.Publish("UserIntegrationEvent", evt);
+            this.eventBus.Publish(evt);
         }
     }
 }

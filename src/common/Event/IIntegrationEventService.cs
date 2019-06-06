@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace ChitChatAPI.Common.Event
 {
-    public interface IIntegrationServiceEvent
+    public interface IIntegrationEventService
     {
         void PublishThroughEventBus(IntegrationEvent evt);
     }

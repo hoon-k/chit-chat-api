@@ -7,7 +7,7 @@ namespace ChitChatAPI.Common.EventBus
 {
     public interface IEventBus
     {
-        void Publish(string eventName, IntegrationEvent evt);
+        void Publish(IntegrationEvent evt);
         // void Subscribe(string eventName, IIntegrationEventHandler<IntegrationEvent> handler);
         // void Unsubscribe(string eventName, IIntegrationEventHandler<IntegrationEvent> handler);
 

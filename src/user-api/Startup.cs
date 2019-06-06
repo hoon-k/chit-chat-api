@@ -16,6 +16,8 @@ using Dapper;
 using RabbitMQ.Client;
 using ChitChatAPI.Common.EventBusRabbitMQ;
 using ChitChatAPI.Common.EventBus;
+using ChitChatAPI.Common.Event;
+using ChitChatAPI.UserAPI.IntegrationsEvents.Services;
 
 namespace ChitChatAPI.UserAPI
 {
@@ -92,6 +94,8 @@ namespace ChitChatAPI.UserAPI
             );
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionManager>();
+
+            services.AddTransient<IIntegrationEventService, UserIntegrationEventService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,8 +125,8 @@ namespace ChitChatAPI.UserAPI
             });
             app.UseMvc();
 
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe("UserUpdateEvent", )
+            // var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            // eventBus.Subscribe("UserUpdateEvent", )
         }
     }
 }
