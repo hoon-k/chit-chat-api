@@ -12,6 +12,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Dapper;
+using RabbitMQ.Client;
+using ChitChatAPI.Common.EventBusRabbitMQ;
+using ChitChatAPI.Common.EventBus;
+using ChitChatAPI.Common.Event;
+using ChitChatAPI.DiscussionAPI.IntegrationsEvents.Events;
+using ChitChatAPI.DiscussionAPI.IntegrationsEvents.Handlers;
 
 namespace ChitChatAPI.DiscussionAPI
 {
@@ -38,6 +44,59 @@ namespace ChitChatAPI.DiscussionAPI
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
+                {
+                    // var settings = sp.GetRequiredService<IOptions<CatalogSettings>>().Value;
+                    // var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
+
+                    var factory = new ConnectionFactory()
+                    {
+                        HostName = Configuration["EventBusConnection"],
+                        DispatchConsumersAsync = true
+                    };
+
+                    if (!string.IsNullOrEmpty(Configuration["EventBusUserName"]))
+                    {
+                        factory.UserName = Configuration["EventBusUserName"];
+                    }
+
+                    if (!string.IsNullOrEmpty(Configuration["EventBusPassword"]))
+                    {
+                        factory.Password = Configuration["EventBusPassword"];
+                    }
+
+                    // var retryCount = 5;
+                    // if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
+                    // {
+                    //     retryCount = int.Parse(Configuration["EventBusRetryCount"]);
+                    // }
+
+                    return new DefaultRabbitMQPersistentConnection(factory);
+                }
+            );
+
+            var subscriptionClientName = Configuration["SubscriptionClientName"];
+            services.AddSingleton<IEventBus, RabbitMQEventBus>(sp =>
+                {
+                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
+                    // var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
+                    // var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
+                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+
+                    // var retryCount = 5;
+                    // if (!string.IsNullOrEmpty(Configuration["EventBusRetryCount"]))
+                    // {
+                    //     retryCount = int.Parse(Configuration["EventBusRetryCount"]);
+                    // }
+
+                    return new RabbitMQEventBus(rabbitMQPersistentConnection, eventBusSubcriptionsManager, subscriptionClientName);
+                }
+            );
+
+            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionManager>();
+
+            // services.AddTransient<IIntegrationEventService, UserIntegrationEventService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +118,10 @@ namespace ChitChatAPI.DiscussionAPI
                 setup.SwaggerEndpoint("/swagger/v1/swagger.json", "ChitChat Discussion API V1");
             });
             app.UseMvc();
+
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe<NewUserCreatedEvent, NewUsetCreatedEventHandler>();
+            // eventBus.Subscribe("UserUpdateEvent", )
         }
     }
 }

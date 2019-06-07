@@ -72,8 +72,8 @@ namespace ChitChatAPI.UserAPI
                     // }
 
                     return new DefaultRabbitMQPersistentConnection(factory);
-                })
-            ;
+                }
+            );
 
             var subscriptionClientName = Configuration["SubscriptionClientName"];
             services.AddSingleton<IEventBus, RabbitMQEventBus>(sp =>

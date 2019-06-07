@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using ChitChatAPI.UserAPI.DataModel;
+using ChitChatAPI.UserAPI.IntegrationsEvents.Events;
+using ChitChatAPI.Common.Event;
 using Dapper;
 using Npgsql;
 
@@ -17,9 +19,11 @@ namespace ChitChatAPI.UserAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IConfiguration config;
+        private readonly IIntegrationEventService integrationEventService;
 
-        public AccountController(IConfiguration configuration) {
+        public AccountController(IConfiguration configuration, IIntegrationEventService integrationEventService) {
             this.config = configuration;
+            this.integrationEventService = integrationEventService;
         }
 
         // GET: api/Account
@@ -35,7 +39,7 @@ namespace ChitChatAPI.UserAPI.Controllers
             using (var connection = new NpgsqlConnection(this.config["ConnectionString"]))
             {
                 var sql = $"CALL create_member_user('{reqObj.Username}', '{reqObj.Password}', '{reqObj.FirstName}', '{reqObj.LastName}')";
-                return await connection.ExecuteAsync(sql);
+                var result = await connection.ExecuteAsync(sql);
 
                 // TODO: Find out why the following is throwing error.
                 // var queryParameters = new DynamicParameters();
@@ -48,6 +52,11 @@ namespace ChitChatAPI.UserAPI.Controllers
                 //     "create_member_user",
                 //     queryParameters,
                 //     commandType: CommandType.StoredProcedure);
+
+                var evt = new NewUserCreatedEvent(reqObj.FirstName, reqObj.LastName, "some_uuid", reqObj.Username, "member");
+                this.integrationEventService.PublishThroughEventBus(evt);
+
+                return result;
             }
         }
 
