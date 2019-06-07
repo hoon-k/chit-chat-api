@@ -79,7 +79,7 @@ namespace ChitChatAPI.Common.EventBusRabbitMQ
         }
 
         private IModel CreateConsumerChannel() {
-            if (this.persistentConnection.IsConnected) {
+            if (!this.persistentConnection.IsConnected) {
                 this.persistentConnection.TryConnect();
             }
 

@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 WORKDIR /src
 
 # Copy csproj and restore as distinct layers
-COPY /src/user-api/*.csproj .
+COPY /src/user-api/user-api.csproj .
 RUN dotnet restore
 
 # Copy everything else and build
